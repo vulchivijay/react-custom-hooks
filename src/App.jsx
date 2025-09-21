@@ -1,40 +1,25 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback } from 'react';
 
-import Places from './components/Places.jsx';
-import Modal from './components/Modal.jsx';
-import DeleteConfirmation from './components/DeleteConfirmation.jsx';
+import Places from './components/Places';
+import Modal from './components/Modal';
+import DeleteConfirmation from './components/DeleteConfirmation';
 import logoImg from './assets/logo.png';
-import AvailablePlaces from './components/AvailablePlaces.jsx';
+import AvailablePlaces from './components/AvailablePlaces';
 import { fetchUserPlaces, updateUserPlaces } from './http.js';
-import Error from './components/Error.jsx';
+import Error from './components/Error';
+// Custom hook
+import { useFetch } from './hooks/useFectch';
 
 function App() {
   const selectedPlace = useRef();
-
-  const [userPlaces, setUserPlaces] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState();
-
   const [errorUpdatingPlaces, setErrorUpdatingPlaces] = useState();
-
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  useEffect(() => {
-    async function fetchPlaces() {
-      setIsFetching(true);
-      try {
-        const places = await fetchUserPlaces();
-        setUserPlaces(places);
-      } catch (error) {
-        setError({ message: error.message || 'Failed to fetch user places.' });
-      }
-
-      setIsFetching(false);
-    }
-
-    fetchPlaces();
-  }, []);
-
+  
+  const { isFetching,
+     setFetchPlaces: setUserPlaces,
+     fetchPlaces: userPlaces,
+     error } = useFetch(fetchUserPlaces, []);
+ 
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
     selectedPlace.current = place;
@@ -87,9 +72,7 @@ function App() {
       }
 
       setModalIsOpen(false);
-    },
-    [userPlaces]
-  );
+    } [userPlaces, setUserPlaces]);
 
   function handleError() {
     setErrorUpdatingPlaces(null);
@@ -135,7 +118,9 @@ function App() {
           />
         )}
 
-        <AvailablePlaces onSelectPlace={handleSelectPlace} />
+        <AvailablePlaces
+          onSelectPlace={handleSelectPlace}
+        />
       </main>
     </>
   );
