@@ -71,9 +71,8 @@ function App() {
           message: error.message || 'Failed to delete place.',
         });
       }
-
       setModalIsOpen(false);
-    }[userPlaces, setUserPlaces]);
+    }, [userPlaces, setUserPlaces]);
 
   function handleError() {
     setErrorUpdatingPlaces(null);
