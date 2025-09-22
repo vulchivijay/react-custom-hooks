@@ -14,12 +14,12 @@ function App() {
   const selectedPlace = useRef();
   const [errorUpdatingPlaces, setErrorUpdatingPlaces] = useState();
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  
+
   const { isFetching,
-     setFetchPlaces: setUserPlaces,
-     fetchPlaces: userPlaces,
-     error } = useFetch(fetchUserPlaces, []);
- 
+    setFetchPlaces: setUserPlaces,
+    fetchPlaces: userPlaces,
+    error } = useFetch(fetchUserPlaces, []);
+
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
     selectedPlace.current = place;
@@ -30,9 +30,7 @@ function App() {
   }
 
   async function handleSelectPlace(selectedPlace) {
-    // await updateUserPlaces([selectedPlace, ...userPlaces]);
-
-    setUserPlaces((prevPickedPlaces) => {
+    setUserPlaces(prevPickedPlaces => {
       if (!prevPickedPlaces) {
         prevPickedPlaces = [];
       }
@@ -43,7 +41,10 @@ function App() {
     });
 
     try {
-      await updateUserPlaces([selectedPlace, ...userPlaces]);
+      if (userPlaces.some((place) => place.id === selectedPlace.id)) {
+        return await updateUserPlaces(userPlaces);
+      }
+      return await updateUserPlaces([selectedPlace, ...userPlaces]);
     } catch (error) {
       setUserPlaces(userPlaces);
       setErrorUpdatingPlaces({
@@ -54,7 +55,7 @@ function App() {
 
   const handleRemovePlace = useCallback(
     async function handleRemovePlace() {
-      setUserPlaces((prevPickedPlaces) =>
+      setUserPlaces(prevPickedPlaces =>
         prevPickedPlaces.filter(
           (place) => place.id !== selectedPlace.current.id
         )
@@ -72,7 +73,7 @@ function App() {
       }
 
       setModalIsOpen(false);
-    } [userPlaces, setUserPlaces]);
+    }[userPlaces, setUserPlaces]);
 
   function handleError() {
     setErrorUpdatingPlaces(null);
